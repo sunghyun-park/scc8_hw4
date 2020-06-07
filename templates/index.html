@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+
+    <!-- Bootstrap CSS -->
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+      integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
+      crossorigin="anonymous"
+    />
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script
+      src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+      integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+      integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+      integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
+      crossorigin="anonymous"
+    ></script>
+
+    <!-- JQuery를 import 합니다 -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+    <title>스파르타코딩클럽 | 1주차과제</title>
+
+    <!-- 구글폰트 -->
+    <link
+      href="https://fonts.googleapis.com/css?family=Stylish&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- style -->
+    <style type="text/css">
+      * {
+        font-family: "Stylish", sans-serif;
+      }
+
+      .wrap {
+        width: 900px;
+        margin: auto;
+      }
+
+      .comment {
+        color: blue;
+        font-weight: bold;
+      }
+
+      #post-box {
+        width: 500px;
+        margin: 20px auto;
+        padding: 50px;
+        border: black solid;
+        border-radius: 5px;
+      }
+    </style>
+
+    <!--<script>태그 안에 있는 것이 자바스크립트 함수-->
+    <!--function 은 함수를 정의, <script> 안에는 함수를 실행-->
+
+    <script>
+    
+
+      function msgbox() {
+        var firstName = $("#firstName").val();
+        var totCnt = $("#totCnt").val();
+        var address = $("#address").val();
+        var phonenumber = $("#phonenumber").val();
+
+        if (firstName == "") {
+          alert("이름을 입력해주세요");
+        } else if (totCnt == "") {
+          alert("수량을 입력해주세요");
+        } else if (address == "") {
+          alert("주소를 입력해주세요");
+        } else if (phonenumber == "") {
+          alert("번호를 입력해주세요");
+        } else {
+          alert("주문이 완료되었습니다");
+        }
+
+        // 4주차 과제 : (post로 데이터 db에 저장하기)
+
+        $.ajax({
+            type : "POST",
+            url : "/orders",
+            data : {
+                firstName_give : $("#firstName").val(),
+                totCnt_give : $("#totCnt").val(),
+                address_give : $("#address").val(),
+                phonenumber_give : $("#phonenumber").val()
+            },
+            success : function(response) {
+                if(response["result"] == "success") {
+                    alert(response["msg"]);
+                    window.location.reload();
+                }
+            }
+
+        });
+      }
+
+      // 환율 가져오기
+
+      $(document).ready(function () {
+        // 제이쿼리 의 레디 메소드는 바디가 로딩되면 미리 걸어둔 함수가 실행되도록 하는 것.
+        // 보통 코드를 불러올때는 헤드 태그 먼저 가져오고 그 다음 바디 태그 읽음. 헤드 읽을 때는 바디가 없는 것. 
+        $.ajax({
+          type: "GET",
+          url: "https://api.manana.kr/exchange/rate.json",
+          data: {},
+          success: function (response) {
+            var krwRate = response[0].rate;
+            var usdKrwRate = response[1].rate;
+            $("#rate").empty();
+            $("#rate").append(
+              "현재 환율 : " + usdKrwRate + " 원 / " + krwRate + " 달러 "
+            );
+          },
+        });
+
+        //   4주차 과제 : DB에 있는 데이터 가져오기 
+
+        $('#orders-box').empty();
+
+         $.ajax({
+          type : "GET",
+          url : "/orders",
+          data : {},
+          success : function(response){
+              if(response["result"] == "success") {
+                  alert(response["msg"]);
+
+                  var orders = response["orders"];
+                  for(i = 0; i<orders.length; i++){
+
+                    var temp_html = `
+                        <tr>
+                            <td>${orders[i].Name}</td>
+                            <td>${orders[i].totCnt}</td>
+                            <td>${orders[i].address}</td>
+                            <td>${orders[i].phonenumber}</td>
+                        </tr>
+                        `;
+                    $('#orders-box').append(temp_html);
+
+                  }
+              } else {
+              alert("리뷰를 받아오지 못했습니다");
+            }
+          }
+         });    
+      });     
+     
+
+
+    </script>
+  </head>
+
+  <body>
+    <div class="container-md">
+      <img class = "d-block mx-auto mb-4"
+      src=http://th2.tmon.kr/thumbs/image/794/a8c/773/e36de7d95_700x700_95_FIT.jpg
+      width="700" height="700" />
+
+      <div class="mx-auto col-md-6 order-md-1">
+        <h4 class="mb-3">상품가격</h4>
+        <b>가격 : 69,000원/개</b>
+        <p>
+          <b id="rate" style="color: blue;"></b>
+        </p>
+
+        <p>
+          이 상품으로 말할 것 같으면 이 상품으로 말할 것 같으면 이 상품으로 말할
+          것 같으면 이 상품으로 말할 것 같으면 이 상품으로 말할 것 같으면 이
+          상품으로 말할 것 같으면 이 상품으로 말할 것 같으면 이 상품으로 말할 것
+          같으면 이 상품으로 말할 것 같으면 이 상품으로 말할 것 같으면 이
+          상품으로 말할 것 같으면 이 상품으로 말할 것 같으면 이 상품으로 말할 것
+          같으면 이 상품으로 말할 것 같으면 이 상품으로 말할 것 같으면
+        </p>
+
+        <div class="needs-validation" novalidate="">
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              주문자 성함
+              <input
+                type="text"
+                class="form-control"
+                id="firstName"
+                placeholder=""
+                value=""
+                required=""
+              />
+              <div class="invalid-feedback">
+                Valid first name is required.
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              수량
+              <input
+                type="text"
+                class="form-control"
+                id="totCnt"
+                placeholder=""
+                value=""
+                required=""
+              />
+              <div class="invalid-feedback">
+                Valid first name is required.
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              주소
+              <input
+                type="address"
+                class="form-control"
+                id="address"
+                placeholder="예)서울시 영등포구 당산동"
+              />
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              전화번호
+              <input
+                type="text"
+                class="form-control"
+                id="phonenumber"
+                placeholder="예)010-1234-5678"
+                required=""
+              />
+            </div>
+          </div>
+
+          <hr class="mb-4" />
+          <button
+            onclick="msgbox()"
+            class="btn btn-primary btn-lg btn-block"
+            type="submit"
+          >
+            주문하기
+          </button>
+
+          <div class="orders">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th scope="col">이름</th>
+                  <th scope="col">수량</th>
+                  <th scope="col">주소</th>
+                  <th scope="col">전화번호</th>
+                </tr>
+              </thead>
+              <tbody id="orders-box">
+                <tr>
+                  <td>Otto</td>
+                  <td>@mdo</td>
+                  <td>@mdo</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
